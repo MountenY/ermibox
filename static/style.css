@@ -50,6 +50,7 @@ body.admin-page {
     border-radius: 24px;
     padding: 48px 32px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
 }
 
 h1 {
@@ -61,15 +62,49 @@ h1 {
 
 h2 {
     font-size: 22px;
-    margin-bottom: 8px;
-    margin-top: 20px;
+    font-weight: 700;
+    margin-top: 28px;
+    margin-bottom: 24px;
     color: var(--dark-gray);
+}
+
+.list-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 48px;
+    margin-bottom: 20px;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--dark-gray);
+}
+
+.count-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    background: var(--green);
+    color: var(--white);
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 30px;
+    text-align: center;
 }
 
 p {
     color: var(--gray);
     margin-bottom: 32px;
     font-size: 16px;
+}
+
+.sub-header {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--gray);
+    margin-bottom: 12px;
+    text-align: left;
+    padding-left: 4px;
 }
 
 label {
@@ -87,12 +122,12 @@ input[type="password"],
 select {
     display: block;
     width: 100%;
-    padding: 16px;
-    font-size: 18px;
-    font-family: inherit;
     max-width: 100%;
     min-width: 0;
     box-sizing: border-box;
+    padding: 16px;
+    font-size: 18px;
+    font-family: inherit;
     background: var(--white);
     border: 2px solid var(--light-gray);
     border-radius: 12px;
@@ -101,11 +136,47 @@ select {
     cursor: pointer;
 }
 
+input[type="date"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: calc(100% - 4px);
+}
+
 input[type="date"]:focus,
 select:focus {
     outline: none;
     border-color: var(--green);
     box-shadow: 0 0 0 3px rgba(0, 104, 72, 0.1);
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+    outline: none;
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px rgba(0, 104, 72, 0.1);
+}
+
+textarea {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 16px;
+    font-size: 16px;
+    font-family: inherit;
+    background: var(--white);
+    border: 2px solid var(--light-gray);
+    border-radius: 12px;
+    color: var(--dark-gray);
+    margin-bottom: 16px;
+    resize: vertical;
+    min-height: 120px;
+}
+
+textarea::placeholder {
+    color: var(--gray);
+    font-style: italic;
 }
 
 button {
@@ -169,14 +240,6 @@ button:active {
     background: var(--light-gray);
 }
 
-h2 {
-    font-size: 22px;
-    font-weight: 700;
-    margin-top: 28px;
-    margin-bottom: 24px;
-    color: var(--dark-gray);
-}
-
 #copy-btn {
     background: var(--almost-white);
     color: var(--dark-gray);
@@ -213,59 +276,6 @@ h2 {
     color: var(--green);
 }
 
-textarea {
-    display: block;
-    width: 100%;
-    padding: 16px;
-    font-size: 16px;
-    font-family: inherit;
-    background: var(--white);
-    border: 2px solid var(--light-gray);
-    border-radius: 12px;
-    color: var(--dark-gray);
-    margin-bottom: 16px;
-    resize: vertical;
-    min-height: 120px;
-    box-sizing: border-box;
-}
-
-.email-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    text-align: left;
-    padding: 12px;
-    background: var(--almost-white);
-    border-radius: 8px;
-    margin-bottom: 8px;
-    font-size: 14px;
-    word-break: break-all;
-}
-
-.email-row span {
-    flex: 1;
-    text-align: left;
-}
-
-.btn-delete {
-    padding: 4px 10px;
-    font-size: 11px;
-    background: transparent;
-    color: var(--red);
-    border: 1px solid var(--red);
-    border-radius: 6px;
-    cursor: pointer;
-    margin-left: 12px;
-    width: auto;
-    flex-shrink: 0;
-    transition: all 0.2s;
-}
-
-.btn-delete:hover {
-    background: var(--red);
-    color: var(--white);
-}
-
 .success {
     background: #d4ede0;
     color: var(--green);
@@ -276,28 +286,27 @@ textarea {
     font-size: 14px;
 }
 
-.admin-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.error {
+    background: var(--light-pink);
+    color: var(--red);
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 20px;
     margin-bottom: 20px;
-    text-align: left;
+    font-size: 14px;
 }
 
-.admin-header h1 {
-    margin-bottom: 4px;
+.form-group {
+    margin-bottom: 24px;
 }
 
-.admin-header p {
+.form-group input {
+    margin-bottom: 12px;
+}
+
+.form-group button {
     margin-bottom: 0;
 }
-
-.admin-header .btn-secondary {
-    margin-bottom: 0;
-    flex-shrink: 0;
-}
-
-/* === Админка: список почт === */
 
 .search-box {
     margin-bottom: 12px;
@@ -375,7 +384,7 @@ textarea {
 }
 
 #emails-list {
-    max-height: 200px;      /* ~3 строки */
+    max-height: 200px;
     overflow-y: auto;
     margin-bottom: 20px;
     padding-right: 4px;
@@ -442,66 +451,6 @@ textarea {
 
 .btn-delete-x:hover {
     background: var(--light-pink);
-}
-
-.list-title {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 48px;
-    margin-bottom: 20px;
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--dark-gray);
-}
-
-.count-badge {
-    display: inline-block;
-    padding: 4px 12px;
-    background: var(--green);
-    color: var(--white);
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 600;
-    min-width: 30px;
-    text-align: center;
-}
-
-textarea::placeholder {
-    color: var(--gray);
-    font-style: italic;
-}
-
-.form-group {
-    margin-bottom: 24px;
-}
-
-.form-group input {
-    margin-bottom: 12px;
-}
-
-.form-group button {
-    margin-bottom: 0;
-}
-
-.sub-header {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--gray);
-    margin-bottom: 12px;
-    text-align: left;
-    padding-left: 4px;
-}
-
-.error {
-    background: var(--light-pink);
-    color: var(--red);
-    padding: 12px;
-    border-radius: 8px;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    font-size: 14px;
 }
 
 .hidden {
