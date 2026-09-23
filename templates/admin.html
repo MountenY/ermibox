@@ -24,7 +24,7 @@
             <div id="message" class="hidden"></div>
 
             <div class="search-box">
-                <input type="text" id="search-input" placeholder="🔍 Поиск...">
+                <input type="text" id="search-input" placeholder="🔍 Поиск..." autocomplete="off" name="search_field">
             </div>
 
             <div class="select-all-row">
@@ -46,11 +46,13 @@
 
             <div id="user-message" class="hidden"></div>
 
-            <div class="form-group">
-                <input type="text" id="new-username" placeholder="Логин (латиница, цифры, _)">
-                <input type="password" id="new-password" placeholder="Пароль (минимум 6 символов)">
-                <button id="add-user-btn" class="btn">Создать работника</button>
-            </div>
+            <form autocomplete="off" onsubmit="return false;">
+                <div class="form-group">
+                    <input type="text" id="new-username" name="new_user_login" placeholder="Логин (латиница, цифры, _)" autocomplete="off">
+                    <input type="password" id="new-password" name="new_user_pass" placeholder="Пароль (минимум 6 символов)" autocomplete="new-password">
+                    <button id="add-user-btn" class="btn" type="button">Создать работника</button>
+                </div>
+            </form>
 
             <div class="sub-header">Пользователи</div>
             <div id="users-list"></div>

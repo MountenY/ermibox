@@ -90,6 +90,9 @@ select {
     padding: 16px;
     font-size: 18px;
     font-family: inherit;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
     background: var(--white);
     border: 2px solid var(--light-gray);
     border-radius: 12px;
@@ -157,7 +160,9 @@ button:active {
     width: auto;
     display: inline-block;
     box-shadow: none;
-    margin-bottom: 20px;
+    margin-top: 32px;
+    margin-bottom: 0;
+    text-decoration: none;
 }
 
 .btn-secondary:hover {
@@ -168,7 +173,7 @@ h2 {
     font-size: 22px;
     font-weight: 700;
     margin-top: 28px;
-    margin-bottom: 16px;
+    margin-bottom: 24px;
     color: var(--dark-gray);
 }
 
@@ -444,8 +449,8 @@ textarea {
     align-items: center;
     justify-content: center;
     gap: 10px;
-    margin-top: 32px;
-    margin-bottom: 16px;
+    margin-top: 48px;
+    margin-bottom: 20px;
     font-size: 22px;
     font-weight: 700;
     color: var(--dark-gray);
