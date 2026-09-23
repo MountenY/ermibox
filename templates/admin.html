@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админка — Почтовик</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚙️</text></svg>">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>⚙️ Админка</h1>
+
+            <h2>Добавить почты</h2>
+            <textarea id="new-emails" placeholder="example@mail.com — каждая почта с новой строки"></textarea>
+            <button id="add-emails-btn" class="btn">Добавить</button>
+
+            <h2 class="list-title">
+                Почты
+                <span class="count-badge" id="count">0</span>
+            </h2>
+
+            <div id="message" class="hidden"></div>
+
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="🔍 Поиск...">
+            </div>
+
+            <div class="select-all-row">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="select-all">
+                    <span>Выбрать всё</span>
+                </label>
+                <button id="delete-selected-btn" class="btn-delete-selected" disabled>
+                    Удалить выбранные (0)
+                </button>
+            </div>
+
+            <div id="emails-list"></div>
+
+            <h2 class="list-title" style="margin-top: 48px;">
+                Работники
+                <span class="count-badge" id="users-count">0</span>
+            </h2>
+
+            <div id="user-message" class="hidden"></div>
+
+            <div class="form-group">
+                <input type="text" id="new-username" placeholder="Логин (латиница, цифры, _)">
+                <input type="password" id="new-password" placeholder="Пароль (минимум 6 символов)">
+                <button id="add-user-btn" class="btn">Создать работника</button>
+            </div>
+
+            <div class="sub-header">Пользователи</div>
+            <div id="users-list"></div>
+
+            <a href="/" class="btn" style="margin-top: 32px;">На главную</a>
+            <a href="/logout" class="btn btn-secondary">Выйти</a>
+        </div>
+    </div>
+
+    <script>
+        const addBtn = document.getElementById('add-emails-btn');
+        const newEmailsInput = document.getElementById('new-emails');
+        const listDiv = document.getElementById('emails-list');
+        const messageDiv = document.getElementById('message');
+        const countSpan = document.getElementById('count');
+        const searchInput = document.getElementById('search-input');
+        const selectAllCheckbox = document.getElementById('select-all');
+        const deleteSelectedBtn = document.getElementById('delete-selected-btn');
+
+        const addUserBtn = document.getElementById('add-user-btn');
+        const newUsernameInput = document.getElementById('new-username');
+        const newPasswordInput = document.getElementById('new-password');
+        const usersListDiv = document.getElementById('users-list');
+        const usersCountSpan = document.getElementById('users-count');
+        const userMessageDiv = document.getElementById('user-message');
+
+        let allEmails = [];
+        let selectedEmails = new Set();
+
+        function loadEmails() {
+            fetch('/admin/emails')
+                .then(r => r.json())
+                .then(data => {
+                    allEmails = data.emails;
+                    selectedEmails.clear();
+                    renderList();
+                });
+        }
+
+        function renderList() {
+            const search = searchInput.value.toLowerCase();
+            const filtered = allEmails.filter(e => e.toLowerCase().includes(search));
+
+            countSpan.textContent = allEmails.length;
+            listDiv.innerHTML = '';
+
+            if (filtered.length === 0) {
+                const empty = document.createElement('p');
+                empty.textContent = search ? 'Ничего не найдено' : 'Список пуст';
+                empty.style.color = 'var(--gray)';
+                empty.style.padding = '20px';
+                empty.style.fontSize = '14px';
+                listDiv.appendChild(empty);
+                updateDeleteButton();
+                updateSelectAll();
+                return;
+            }
+
+            filtered.forEach(email => {
+                const row = document.createElement('div');
+                row.className = 'email-row';
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'email-checkbox';
+                checkbox.checked = selectedEmails.has(email);
+                checkbox.addEventListener('change', function(e) {
+                    e.stopPropagation();
+                    if (this.checked) {
+                        selectedEmails.add(email);
+                    } else {
+                        selectedEmails.delete(email);
+                    }
+                    updateDeleteButton();
+                    updateSelectAll();
+                });
+
+                const span = document.createElement('span');
+                span.textContent = email;
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'btn-delete-x';
+                deleteBtn.textContent = '✕';
+                deleteBtn.title = 'Удалить';
+                deleteBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    deleteEmail(email);
+                });
+
+                row.appendChild(checkbox);
+                row.appendChild(span);
+                row.appendChild(deleteBtn);
+
+                listDiv.appendChild(row);
+            });
+
+            updateDeleteButton();
+            updateSelectAll();
+        }
+
+        function updateDeleteButton() {
+            const count = selectedEmails.size;
+            deleteSelectedBtn.textContent = 'Удалить выбранные (' + count + ')';
+            deleteSelectedBtn.disabled = count === 0;
+        }
+
+        function updateSelectAll() {
+            const search = searchInput.value.toLowerCase();
+            const filtered = allEmails.filter(e => e.toLowerCase().includes(search));
+
+            if (filtered.length === 0) {
+                selectAllCheckbox.checked = false;
+                selectAllCheckbox.indeterminate = false;
+                return;
+            }
+
+            const allSelected = filtered.every(e => selectedEmails.has(e));
+            const someSelected = filtered.some(e => selectedEmails.has(e));
+
+            selectAllCheckbox.checked = allSelected;
+            selectAllCheckbox.indeterminate = someSelected && !allSelected;
+        }
+
+        searchInput.addEventListener('input', renderList);
+
+        selectAllCheckbox.addEventListener('change', function() {
+            const search = searchInput.value.toLowerCase();
+            const filtered = allEmails.filter(e => e.toLowerCase().includes(search));
+
+            if (this.checked) {
+                filtered.forEach(e => selectedEmails.add(e));
+            } else {
+                filtered.forEach(e => selectedEmails.delete(e));
+            }
+            renderList();
+        });
+
+        function isValidEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        addBtn.addEventListener('click', function() {
+            const text = newEmailsInput.value;
+            const allLines = text.split('\n').map(e => e.trim()).filter(e => e);
+
+            if (allLines.length === 0) {
+                showMessage('Введите хотя бы одну почту', 'error');
+                return;
+            }
+
+            const validEmails = allLines.filter(e => isValidEmail(e));
+            const invalidEmails = allLines.filter(e => !isValidEmail(e));
+
+            if (invalidEmails.length > 0) {
+                showMessage('Неверный формат: ' + invalidEmails.join(', '), 'error');
+                return;
+            }
+
+            fetch('/admin/add-emails', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ emails: validEmails })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) {
+                    showMessage(data.error, 'error');
+                } else {
+                    showMessage('Добавлено: ' + data.added.length + '. Всего: ' + data.total, 'success');
+                    newEmailsInput.value = '';
+                    loadEmails();
+                }
+            })
+            .catch(() => showMessage('Ошибка сервера', 'error'));
+        });
+
+        function deleteEmail(email) {
+            if (!confirm('Удалить ' + email + '?')) return;
+
+            fetch('/admin/delete-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) {
+                    showMessage(data.error, 'error');
+                } else {
+                    showMessage('Удалено: ' + email, 'success');
+                    selectedEmails.delete(email);
+                    loadEmails();
+                }
+            })
+            .catch(() => showMessage('Ошибка сервера', 'error'));
+        }
+
+        deleteSelectedBtn.addEventListener('click', function() {
+            const count = selectedEmails.size;
+            if (count === 0) return;
+
+            if (!confirm('Удалить ' + count + ' почт?')) return;
+
+            fetch('/admin/delete-emails', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ emails: Array.from(selectedEmails) })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) {
+                    showMessage(data.error, 'error');
+                } else {
+                    showMessage('Удалено: ' + data.deleted + '. Осталось: ' + data.total, 'success');
+                    selectedEmails.clear();
+                    loadEmails();
+                }
+            })
+            .catch(() => showMessage('Ошибка сервера', 'error'));
+        });
+
+        function showMessage(text, type) {
+            messageDiv.textContent = text;
+            messageDiv.className = type;
+            setTimeout(() => messageDiv.className = 'hidden', 5000);
+        }
+
+        function showUserMessage(text, type) {
+            userMessageDiv.textContent = text;
+            userMessageDiv.className = type;
+            setTimeout(() => userMessageDiv.className = 'hidden', 5000);
+        }
+
+        function loadUsers() {
+            fetch('/admin/users')
+                .then(r => r.json())
+                .then(data => {
+                    usersListDiv.innerHTML = '';
+                    usersCountSpan.textContent = data.users.length;
+
+                    data.users.forEach(user => {
+                        const row = document.createElement('div');
+                        row.className = 'email-row';
+
+                        const span = document.createElement('span');
+                        if (user.role === 'admin') {
+                            span.textContent = '👑 ' + user.username;
+                            span.style.color = 'var(--green)';
+                            span.style.fontWeight = '600';
+                        } else {
+                            span.textContent = '👤 ' + user.username;
+                        }
+
+                        row.appendChild(span);
+
+                        if (user.role !== 'admin') {
+                            const deleteBtn = document.createElement('button');
+                            deleteBtn.className = 'btn-delete-x';
+                            deleteBtn.textContent = '✕';
+                            deleteBtn.title = 'Удалить';
+                            deleteBtn.addEventListener('click', function(e) {
+                                e.stopPropagation();
+                                deleteUser(user.username);
+                            });
+                            row.appendChild(deleteBtn);
+                        }
+
+                        usersListDiv.appendChild(row);
+                    });
+                });
+        }
+
+        addUserBtn.addEventListener('click', function() {
+            const username = newUsernameInput.value.trim();
+            const password = newPasswordInput.value;
+
+            if (!username) {
+                showUserMessage('Введите логин', 'error');
+                return;
+            }
+
+            if (!password) {
+                showUserMessage('Введите пароль', 'error');
+                return;
+            }
+
+            fetch('/admin/add-user', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: username, password: password })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) {
+                    showUserMessage(data.error, 'error');
+                } else {
+                    showUserMessage('Работник создан: ' + data.username, 'success');
+                    newUsernameInput.value = '';
+                    newPasswordInput.value = '';
+                    loadUsers();
+                }
+            })
+            .catch(() => showUserMessage('Ошибка сервера', 'error'));
+        });
+
+        function deleteUser(username) {
+            if (!confirm('Удалить работника ' + username + '?')) return;
+
+            fetch('/admin/delete-user', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: username })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) {
+                    showUserMessage(data.error, 'error');
+                } else {
+                    showUserMessage('Удалён: ' + data.username, 'success');
+                    loadUsers();
+                }
+            })
+            .catch(() => showUserMessage('Ошибка сервера', 'error'));
+        }
+
+        loadEmails();
+        loadUsers();
+    </script>
+</body>
+</html>

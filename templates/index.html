@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Почтовик</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📬</text></svg>">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="main-page">
+    <div class="container">
+        <div class="card">
+            <h1>📬 Почтовик</h1>
+            <p>Получите почту на выбранное время</p>
+
+            <label for="date-input">Дата</label>
+            <input type="date" id="date-input">
+
+            <label for="datetime-input">Время</label>
+            <select id="datetime-input">
+                <option value="">Выберите время</option>
+                <option value="11:00">11:00</option>
+                <option value="11:15">11:15</option>
+                <option value="11:30">11:30</option>
+                <option value="11:45">11:45</option>
+                <option value="12:00">12:00</option>
+                <option value="12:15">12:15</option>
+                <option value="12:30">12:30</option>
+                <option value="12:45">12:45</option>
+                <option value="13:00">13:00</option>
+                <option value="13:15">13:15</option>
+                <option value="13:30">13:30</option>
+                <option value="13:45">13:45</option>
+                <option value="14:00">14:00</option>
+                <option value="14:15">14:15</option>
+                <option value="14:30">14:30</option>
+                <option value="14:45">14:45</option>
+                <option value="15:00">15:00</option>
+                <option value="15:15">15:15</option>
+                <option value="15:30">15:30</option>
+                <option value="15:45">15:45</option>
+                <option value="16:00">16:00</option>
+                <option value="16:15">16:15</option>
+                <option value="16:30">16:30</option>
+                <option value="16:45">16:45</option>
+                <option value="17:00">17:00</option>
+                <option value="17:15">17:15</option>
+                <option value="17:30">17:30</option>
+                <option value="17:45">17:45</option>
+                <option value="18:00">18:00</option>
+                <option value="18:15">18:15</option>
+                <option value="18:30">18:30</option>
+                <option value="18:45">18:45</option>
+                <option value="19:00">19:00</option>
+            </select>
+
+            <button id="get-email-btn">Получить почту</button>
+
+            <div id="result" class="result hidden">
+                <p>Ваша почта:</p>
+                <div class="email-box" id="email-display"></div>
+                <button id="copy-btn">📋 Скопировать</button>
+            </div>
+
+            <div id="error" class="error hidden"></div>
+
+            {% if is_admin %}
+            <a href="/admin" class="btn" style="margin-top: 24px;">⚙️ Админка</a>
+            {% endif %}
+
+            <a href="/logout" class="btn btn-secondary" style="margin-top: 24px;">Выйти</a>
+        </div>
+    </div>
+
+    <script>
+        const btn = document.getElementById('get-email-btn');
+        const dateInput = document.getElementById('date-input');
+        const dtInput = document.getElementById('datetime-input');
+        const resultDiv = document.getElementById('result');
+        const emailDisplay = document.getElementById('email-display');
+        const errorDiv = document.getElementById('error');
+        const copyBtn = document.getElementById('copy-btn');
+
+        btn.addEventListener('click', function() {
+            const date = dateInput.value;
+            const time = dtInput.value;
+
+            if (!date) {
+                errorDiv.textContent = 'Выбери дату!';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            if (!time) {
+                errorDiv.textContent = 'Выбери время!';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            const datetime = date + 'T' + time;
+
+            errorDiv.classList.add('hidden');
+            resultDiv.classList.add('hidden');
+
+            fetch('/get-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ datetime: datetime })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(data.error);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                emailDisplay.style.color = '';
+                emailDisplay.textContent = data.email;
+                resultDiv.classList.remove('hidden');
+            })
+            .catch((error) => {
+                errorDiv.textContent = error.message || 'Ошибка сервера. Попробуйте ещё раз.';
+                errorDiv.classList.remove('hidden');
+            });
+        });
+
+        copyBtn.addEventListener('click', function() {
+            const email = emailDisplay.textContent.split(' (')[0];
+            navigator.clipboard.writeText(email);
+            copyBtn.textContent = '✅ Скопировано!';
+            emailDisplay.style.color = '#999999';
+            setTimeout(() => {
+                copyBtn.textContent = '📋 Скопировать';
+            }, 1500);
+        });
+    </script>
+</body>
+</html>
