@@ -135,23 +135,41 @@ select {
     color: var(--dark-gray);
     margin-bottom: 20px;
     cursor: pointer;
+
 }
 
-input[type="date"] {
-    -webkit-appearance: none;
-    appearance: none;
+.date-wrapper {
+    position: relative;
     width: 100%;
     height: 60px;
-    padding: 0 16px;
-    text-align: left;
-    box-sizing: border-box;
-    border-radius: 12px;
+    margin-bottom: 20px;
     background: var(--white);
     border: 2px solid var(--light-gray);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.date-wrapper input[type="date"] {
+    width: 100%;
+    height: 60px;
+    padding: 0;
+    margin: 0;
+    border: none;
+    outline: none;
+    background: transparent;
     font-size: 18px;
     font-family: inherit;
     color: var(--dark-gray);
+    text-align: left;
+    -webkit-appearance: none;
+    appearance: none;
     line-height: 60px;
+    box-sizing: border-box;
+    
 }
 
 select {
