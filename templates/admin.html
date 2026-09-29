@@ -40,7 +40,7 @@
             <div id="emails-list"></div>
 
             <h2 class="list-title" style="margin-top: 48px;">
-                Работники
+                Сотрудники
                 <span class="count-badge" id="users-count">0</span>
             </h2>
 
@@ -50,7 +50,7 @@
                 <div class="form-group">
                     <input type="text" id="new-username" name="new_user_login" placeholder="Логин (латиница, цифры, _)" autocomplete="off">
                     <input type="password" id="new-password" name="new_user_pass" placeholder="Пароль (минимум 6 символов)" autocomplete="new-password">
-                    <button id="add-user-btn" class="btn" type="button">Создать работника</button>
+                    <button id="add-user-btn" class="btn" type="button">Создать сотрудника</button>
                 </div>
             </form>
 
@@ -350,7 +350,7 @@
                 if (data.error) {
                     showUserMessage(data.error, 'error');
                 } else {
-                    showUserMessage('Работник создан: ' + data.username, 'success');
+                    showUserMessage('Сотрудник создан: ' + data.username, 'success');
                     newUsernameInput.value = '';
                     newPasswordInput.value = '';
                     loadUsers();
@@ -360,7 +360,7 @@
         });
 
         function deleteUser(username) {
-            if (!confirm('Удалить работника ' + username + '?')) return;
+            if (!confirm('Удалить сотрудника ' + username + '?')) return;
 
             fetch('/admin/delete-user', {
                 method: 'POST',
